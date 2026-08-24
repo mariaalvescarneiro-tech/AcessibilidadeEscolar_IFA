@@ -1,0 +1,120 @@
+/* Configurações Globais com Alto Contraste (Fundo Escuro / Texto Amarelo e Branco) 
+   Ideais para pessoas com baixa visão e fotofobia */
+   :root {
+    --bg-color: #121212;
+    --card-bg: #1e1e1e;
+    --text-color: #ffffff;
+    --accent-color: #ffff00; /* Amarelo de alto contraste para destaques e títulos */
+    --link-color: #00e5ff;   /* Ciano de alto contraste para links */
+    --focus-border: #ff007f;  /* Borda rosa para indicar foco do teclado claramente */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, Helvetica, sans-serif; /* Fonte limpa e sem serifa para facilitar leitura */
+    font-size: 1.25rem; /* Fonte ampliada por padrão (20px) */
+    line-height: 1.8;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Indicador de Foco para Navegação por Teclado */
+*:focus {
+    outline: 4px solid var(--focus-border) !important;
+    outline-offset: 4px;
+}
+
+/* Links de Atalho Ocultos (visíveis ao focar com a tecla Tab) */
+.atalhos-acessibilidade a {
+    position: absolute;
+    top: -50px;
+    left: 10px;
+    background: var(--accent-color);
+    color: #000000;
+    padding: 10px 15px;
+    font-weight: bold;
+    text-decoration: none;
+    z-index: 1000;
+}
+
+.atalhos-acessibilidade a:focus {
+    top: 10px;
+}
+
+header {
+    border-bottom: 3px solid var(--accent-color);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+h1, h2, h3 {
+    color: var(--accent-color);
+}
+
+h1 {
+    font-size: 2.2rem;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-top: 30px;
+}
+
+main section {
+    background-color: var(--card-bg);
+    padding: 25px;
+    margin-bottom: 25px;
+    border-radius: 8px;
+    border: 1px solid #333333;
+}
+
+/* Botões do Leitor de Voz */
+.painel-leitura {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+button {
+    background-color: var(--accent-color);
+    color: #000000;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+button:hover {
+    background-color: #ffffff;
+}
+
+/* Estilização de Links */
+a {
+    color: var(--link-color);
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+a:hover {
+    color: #ffffff;
+}
+
+ul {
+    padding-left: 25px;
+}
+
+li {
+    margin-bottom: 12px;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 40px;
+    border-top: 1px solid #333333;
+    font-size: 1rem;
+}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acessibilidade na Educação Inclusive</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Links de Atalho de Acessibilidade -->
+    <nav class="atalhos-acessibilidade" aria-label="Atalhos de Teclado">
+        <a href="#intro" tabindex="1">Ir para o Conteúdo (Atalho: Alt + 1)</a>
+        <a href="#dificuldades" tabindex="2">Ir para Dificuldades (Atalho: Alt + 2)</a>
+        <a href="#conclusao" tabindex="3">Ir para Conclusão e Soluções (Atalho: Alt + 3)</a>
+        <a href="#fontes" tabindex="4">Ir para Plataformas do Paraná (Atalho: Alt + 4)</a>
+    </nav>
+
+    <!-- Barra de Ferramentas de Voz e Acessibilidade -->
+    <header>
+        <h1>Acessibilidade na Educação</h1>
+        <div class="painel-leitura" role="region" aria-label="Controles do Leitor de Voz">
+            <button id="btn-play" onclick="lerTexto()" aria-label="Ouvir texto da página (Atalho: Alt + P)">▶️ Ouvir Página (Alt + P)</button>
+            <button id="btn-pause" onclick="pausarTexto()" aria-label="Pausar leitura de voz (Atalho: Alt + S)">⏸️ Pausar (Alt + S)</button>
+            <button id="btn-stop" onclick="pararTexto()" aria-label="Parar leitura de voz (Atalho: Alt + X)">⏹️ Parar (Alt + X)</button>
+        </div>
+    </header>
+
+    <main>
+        <!-- PARTE 1: INTRODUÇÃO -->
+        <section id="intro" aria-labelledby="titulo-intro" tabindex="-1">
+            <h2 id="titulo-intro">1. O que é Acessibilidade na Educação?</h2>
+            <p>
+                A acessibilidade na educação garante que estudantes com deficiência visual, auditiva, física ou cognitiva tenham as mesmas oportunidades de aprendizado que os demais. 
+                Mais do que cumprir leis, garantir acessibilidade no ambiente escolar significa construir uma sociedade justa, onde a tecnologia e a arquitetura funcionam como pontes para o conhecimento, e não como barreiras.
+            </p>
+        </section>
+
+        <!-- PARTE 2: DIFICULDADES ENFRENTADAS -->
+        <section id="dificuldades" aria-labelledby="titulo-dificuldades" tabindex="-1">
+            <h2 id="titulo-dificuldades">2. As Dificuldades Enfrentadas no Dia a Dia</h2>
+            <p>
+                Apesar dos avanços legais, alunos com deficiência visual e baixa visão ainda enfrentam grandes obstáculos cotidianos nas escolas e universidades:
+            </p>
+            <ul>
+                <li><strong>Materiais didáticos incompatíveis:</strong> Livros e documentos digitalizados em formato de imagem que não podem ser lidos por softwares leitores de tela.</li>
+                <li><strong>Falta de contraste e iluminação adequada:</strong> Plataformas virtuais com cores claras em fundo branco, tornando o texto invisível para quem tem baixa visão.</li>
+                <li><strong>Plataformas digitais sem navegação por teclado:</strong> Sistemas acadêmicos que exigem o uso do mouse para clicar em botões importantes.</li>
+                <li><strong>Falta de audiodescrição:</strong> Vídeos educativos sem descrição em áudio sobre os elementos visuais apresentados.</li>
+            </ul>
+        </section>
+
+        <!-- PARTE 3: CONCLUSÃO E SOLUÇÕES -->
+        <section id="conclusao" aria-labelledby="titulo-conclusao" tabindex="-1">
+            <h2 id="titulo-conclusao">3. Ideias para uma Maior Inclusão Escolar</h2>
+            <p>
+                Para alcançar uma verdadeira inclusão educacional, instituições públicas e privadas devem adotar medidas práticas e continuadas:
+            </p>
+            <ul>
+                <li><strong>Padrões de Acessibilidade Digital:</strong> Implementar a diretriz WCAG em todas as plataformas escolares digitais.</li>
+                <li><strong>Capacitação Docente:</strong> Treinar professores para produzir conteúdos acessíveis, como textos digitais estruturados e com descrições de imagens.</li>
+                <li><strong>Formatos Diversificados:</strong> Disponibilizar livros didáticos em Braille, áudio e formatos digitais acessíveis (como EPUB).</li>
+            </ul>
+
+            <h3 id="fontes">Plataformas Educacionais Acessíveis no Estado do Paraná</h3>
+            <p>Abaixo estão três portais utilizados na rede educacional do Estado do Paraná projetados com recursos de acessibilidade:</p>
+            
+            <ul class="lista-links">
+                <li>
+                    <a href="https://www.escoladigital.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela o portal Escola Digital Paraná">
+                        Escola Digital Paraná <span>(Abre em nova janela)</span>
+                    </a> - Portal de recursos educacionais digitais com suporte a leitores de tela e contraste.
+                </li>
+                <li>
+                    <a href="https://www.educacao.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela a Secretaria da Educação do Paraná">
+                        Secretaria da Educação do Paraná (SEED-PR) <span>(Abre em nova janela)</span>
+                    </a> - Portal oficial adaptado com barra de acessibilidade VLibras e opções de ajuste de texto.
+                </li>
+                <li>
+                    <a href="https://www.nre.seed.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela o portal dos Núcleos Regionais de Educação">
+                        Núcleos Regionais de Educação (NRE Paraná) <span>(Abre em nova janela)</span>
+                    </a> - Plataforma de apoio com menus simplificados para navegação por teclado e leitor de tela.
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <p>Desenvolvido com foco em acessibilidade universal (WCAG 2.1).</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
