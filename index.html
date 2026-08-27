@@ -3,92 +3,469 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acessibilidade na Educação Inclusive</title>
+    <title>Acessibilidade na Educação — IFA Paraná</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Links de Atalho de Acessibilidade -->
-    <nav class="atalhos-acessibilidade" aria-label="Atalhos de Teclado">
-        <a href="#intro" tabindex="1">Ir para o Conteúdo (Atalho: Alt + 1)</a>
-        <a href="#dificuldades" tabindex="2">Ir para Dificuldades (Atalho: Alt + 2)</a>
-        <a href="#conclusao" tabindex="3">Ir para Conclusão e Soluções (Atalho: Alt + 3)</a>
-        <a href="#fontes" tabindex="4">Ir para Plataformas do Paraná (Atalho: Alt + 4)</a>
+    <!-- Skip links: ficam ocultos e aparecem ao pressionar Tab -->
+    <nav class="skip-links" aria-label="Links de salto rápido">
+        <a href="#boas-vindas">Ir para Boas-vindas (Alt+1)</a>
+        <a href="#intro">Ir para Conteúdo (Alt+2)</a>
+        <a href="#dificuldades">Ir para Dificuldades (Alt+3)</a>
+        <a href="#conclusao">Ir para Soluções (Alt+4)</a>
     </nav>
 
-    <!-- Barra de Ferramentas de Voz e Acessibilidade -->
-    <header>
-        <h1>Acessibilidade na Educação</h1>
-        <div class="painel-leitura" role="region" aria-label="Controles do Leitor de Voz">
-            <button id="btn-play" onclick="lerTexto()" aria-label="Ouvir texto da página (Atalho: Alt + P)">▶️ Ouvir Página (Alt + P)</button>
-            <button id="btn-pause" onclick="pausarTexto()" aria-label="Pausar leitura de voz (Atalho: Alt + S)">⏸️ Pausar (Alt + S)</button>
-            <button id="btn-stop" onclick="pararTexto()" aria-label="Parar leitura de voz (Atalho: Alt + X)">⏹️ Parar (Alt + X)</button>
+    <!-- CABEÇALHO FIXO -->
+    <header class="site-header" role="banner">
+        <div class="header-bar container">
+            <a href="#boas-vindas" class="header-logo" aria-label="IFA Acessibilidade — Início">
+                <span class="logo-icon" aria-hidden="true">♿</span>
+                <span class="logo-text">IFA Acessibilidade</span>
+            </a>
+
+            <nav class="header-nav" aria-label="Navegação principal">
+                <a href="#intro">Conteúdo</a>
+                <a href="#dificuldades">Dificuldades</a>
+                <a href="#conclusao">Soluções</a>
+                <a href="#opiniao">Sua Opinião</a>
+            </nav>
+
+            <div class="header-actions">
+                <button
+                    class="btn-mode-toggle"
+                    onclick="toggleModoAcessibilidade()"
+                    aria-label="Ativar modo de alto contraste"
+                    id="btn-mode-toggle"
+                >
+                    <span class="mode-icon" aria-hidden="true">♿</span>
+                    <span class="mode-label">Modo Acessibilidade</span>
+                </button>
+                <button
+                    class="btn-mobile-menu"
+                    aria-label="Abrir menu de navegação"
+                    aria-expanded="false"
+                    id="btn-hamburger"
+                    onclick="toggleMobileMenu()"
+                >
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu dropdown mobile -->
+        <div class="mobile-dropdown" id="mobile-dropdown" aria-hidden="true">
+            <nav aria-label="Menu mobile">
+                <a href="#intro" onclick="closeMobileMenu()">Conteúdo</a>
+                <a href="#dificuldades" onclick="closeMobileMenu()">Dificuldades</a>
+                <a href="#conclusao" onclick="closeMobileMenu()">Soluções</a>
+                <a href="#opiniao" onclick="closeMobileMenu()">Sua Opinião</a>
+            </nav>
         </div>
     </header>
 
-    <main>
-        <!-- PARTE 1: INTRODUÇÃO -->
-        <section id="intro" aria-labelledby="titulo-intro" tabindex="-1">
-            <h2 id="titulo-intro">1. O que é Acessibilidade na Educação?</h2>
-            <p>
-                A acessibilidade na educação garante que estudantes com deficiência visual, auditiva, física ou cognitiva tenham as mesmas oportunidades de aprendizado que os demais. 
-                Mais do que cumprir leis, garantir acessibilidade no ambiente escolar significa construir uma sociedade justa, onde a tecnologia e a arquitetura funcionam como pontes para o conhecimento, e não como barreiras.
-            </p>
+    <main id="main-content">
+
+        <!-- SEÇÃO 1: BOAS-VINDAS -->
+        <section id="boas-vindas" class="section-welcome" aria-labelledby="titulo-welcome" tabindex="-1">
+            <div class="container">
+                <div class="welcome-badge" aria-hidden="true">
+                    <span>♿</span> Site com acessibilidade integrada
+                </div>
+
+                <h1 id="titulo-welcome" class="welcome-title">
+                    Acessibilidade na Educação
+                </h1>
+
+                <p class="welcome-subtitle">
+                    Entenda as barreiras que estudantes com deficiência enfrentam todos os dias — e o que podemos fazer, juntos, para mudar isso.
+                </p>
+
+                <!-- Controles de leitura em voz -->
+                <div class="voice-panel" role="region" aria-label="Leitor de voz da página">
+                    <p class="voice-label" id="voice-label-desc">Ouvir o conteúdo desta página em voz alta:</p>
+                    <div class="voice-buttons" role="group" aria-labelledby="voice-label-desc">
+                        <button class="btn-voice btn-play" onclick="lerTexto()" aria-label="Iniciar leitura em voz alta — atalho: Alt+P">
+                            ▶ Ouvir Página
+                        </button>
+                        <button class="btn-voice btn-pause" onclick="pausarTexto()" aria-label="Pausar ou retomar leitura — atalho: Alt+S">
+                            ⏸ Pausar
+                        </button>
+                        <button class="btn-voice btn-stop" onclick="pararTexto()" aria-label="Parar leitura — atalho: Alt+X">
+                            ⏹ Parar
+                        </button>
+                    </div>
+                    <div class="speed-controls" role="group" aria-label="Controle de velocidade da leitura">
+                        <span class="speed-label">Velocidade:</span>
+                        <button class="btn-speed" onclick="diminuirVelocidade()" aria-label="Diminuir velocidade — atalho: Alt+vírgula">−</button>
+                        <span class="speed-display" id="speed-display" aria-live="polite" aria-atomic="true">1.0×</span>
+                        <button class="btn-speed" onclick="aumentarVelocidade()" aria-label="Aumentar velocidade — atalho: Alt+ponto">+</button>
+                    </div>
+                </div>
+
+                <!-- Guia de atalhos -->
+                <div class="shortcuts-guide" role="region" aria-label="Guia completo de atalhos de teclado">
+                    <h2 class="shortcuts-title">⌨️ Como navegar neste site</h2>
+                    <p class="shortcuts-desc">
+                        Todo o conteúdo pode ser acessado sem usar o mouse. Veja os atalhos disponíveis:
+                    </p>
+                    <div class="shortcuts-grid" role="list">
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais P">Alt + P</kbd>
+                            <span>Iniciar leitura em voz alta</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais S">Alt + S</kbd>
+                            <span>Pausar ou retomar leitura</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais X">Alt + X</kbd>
+                            <span>Parar leitura completamente</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais 1">Alt + 1</kbd>
+                            <span>Ir para esta seção de boas-vindas</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais 2">Alt + 2</kbd>
+                            <span>Ir para o conteúdo principal</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais 3">Alt + 3</kbd>
+                            <span>Ir para as dificuldades</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais 4">Alt + 4</kbd>
+                            <span>Ir para soluções e plataformas</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais ponto">Alt + .</kbd>
+                            <span>Aumentar velocidade da leitura</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais vírgula">Alt + ,</kbd>
+                            <span>Diminuir velocidade da leitura</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd aria-label="Alt mais A">Alt + A</kbd>
+                            <span>Ativar/desativar modo acessibilidade</span>
+                        </div>
+                        <div class="shortcut-item" role="listitem">
+                            <kbd>Tab</kbd>
+                            <span>Navegar entre links e botões</span>
+                        </div>
+                    </div>
+                    <p class="mobile-shortcut-note">
+                        📱 <strong>No celular?</strong> Use a barra de navegação rápida no rodapé da tela — ela leva direto para cada seção.
+                    </p>
+                </div>
+            </div>
         </section>
 
-        <!-- PARTE 2: DIFICULDADES ENFRENTADAS -->
-        <section id="dificuldades" aria-labelledby="titulo-dificuldades" tabindex="-1">
-            <h2 id="titulo-dificuldades">2. As Dificuldades Enfrentadas no Dia a Dia</h2>
-            <p>
-                Apesar dos avanços legais, alunos com deficiência visual e baixa visão ainda enfrentam grandes obstáculos cotidianos nas escolas e universidades:
-            </p>
-            <ul>
-                <li><strong>Materiais didáticos incompatíveis:</strong> Livros e documentos digitalizados em formato de imagem que não podem ser lidos por softwares leitores de tela.</li>
-                <li><strong>Falta de contraste e iluminação adequada:</strong> Plataformas virtuais com cores claras em fundo branco, tornando o texto invisível para quem tem baixa visão.</li>
-                <li><strong>Plataformas digitais sem navegação por teclado:</strong> Sistemas acadêmicos que exigem o uso do mouse para clicar em botões importantes.</li>
-                <li><strong>Falta de audiodescrição:</strong> Vídeos educativos sem descrição em áudio sobre os elementos visuais apresentados.</li>
-            </ul>
+        <!-- DEVICE MOCKUP — decorativo, não lido por leitores de tela -->
+        <section class="section-device" aria-hidden="true" role="presentation">
+            <div class="container device-container">
+                <p class="device-eyebrow">Funciona em qualquer dispositivo</p>
+
+                <!-- ── PHONE MOCK (visível apenas no mobile) ── -->
+                <div class="phone-mock">
+                    <span class="phone-side-btn btn-silent"></span>
+                    <span class="phone-side-btn btn-vol-up"></span>
+                    <span class="phone-side-btn btn-vol-down"></span>
+                    <span class="phone-side-btn btn-power"></span>
+                    <div class="phone-frame">
+                        <div class="phone-inner-bezel"></div>
+                        <div class="phone-screen">
+                            <div class="phone-island"></div>
+                            <div class="phone-statusbar">
+                                <span class="ps-time">9:41</span>
+                                <div class="ps-icons">
+                                    <svg width="15" height="10" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="1"/><rect x="4.5" y="5" width="3" height="6" rx="1"/><rect x="9" y="2.5" width="3" height="8.5" rx="1"/><rect x="13.5" y="0" width="3" height="11" rx="1"/></svg>
+                                    <svg width="14" height="10" viewBox="0 0 16 12" fill="none"><path d="M1 3.2A11 11 0 0 1 15 3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M3.5 6A7 7 0 0 1 12.5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M6 8.7a3 3 0 0 1 4 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+                                    <svg width="22" height="11" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" stroke-opacity="0.35"/><rect x="2" y="2" width="17" height="8" rx="1.8" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" fill-opacity="0.4"/></svg>
+                                </div>
+                            </div>
+                            <div class="phone-app-header">
+                                <span>♿ IFA Acessibilidade</span>
+                            </div>
+                            <div class="phone-content">
+                                <p class="phone-section-tag">Ouvir em voz alta:</p>
+                                <div class="phone-voice-row">
+                                    <button class="phone-btn-play">▶ Ouvir</button>
+                                    <button class="phone-btn-sec">⏸</button>
+                                    <button class="phone-btn-sec">⏹</button>
+                                </div>
+                                <div class="phone-kbds">
+                                    <div class="phone-kbd-row"><kbd>Alt+P</kbd><span>Ouvir página</span></div>
+                                    <div class="phone-kbd-row"><kbd>Alt+S</kbd><span>Pausar</span></div>
+                                    <div class="phone-kbd-row"><kbd>Tab</kbd><span>Navegar</span></div>
+                                </div>
+                            </div>
+                            <div class="phone-bottom-bar">
+                                <span>🏠</span><span>📖</span><span>⚠️</span><span>💡</span><span>💬</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── LAPTOP MOCK (visível apenas no desktop) ── -->
+                <div class="laptop-mock">
+                    <div class="laptop-lid">
+                        <!-- barra do browser -->
+                        <div class="browser-chrome">
+                            <div class="browser-dots">
+                                <span class="dot dot-r"></span>
+                                <span class="dot dot-y"></span>
+                                <span class="dot dot-g"></span>
+                            </div>
+                            <div class="browser-tab-pill">
+                                <span>♿</span> IFA Acessibilidade
+                            </div>
+                            <div class="browser-address">
+                                <span class="browser-lock">🔒</span>
+                                ifa-acessibilidade.pr.gov.br
+                            </div>
+                        </div>
+                        <!-- mini site dentro do browser -->
+                        <div class="browser-viewport">
+                            <div class="mini-site-header">
+                                <span class="mini-logo">♿ IFA Acessibilidade</span>
+                                <nav class="mini-nav">
+                                    <span>Conteúdo</span>
+                                    <span>Dificuldades</span>
+                                    <span>Soluções</span>
+                                    <span>Sua Opinião</span>
+                                </nav>
+                                <button class="mini-toggle">♿ Modo Acessibilidade</button>
+                            </div>
+                            <div class="mini-hero">
+                                <div class="mini-badge">♿ Site com acessibilidade integrada</div>
+                                <h3 class="mini-title">Acessibilidade na Educação<br><span class="mini-accent">do Paraná</span></h3>
+                                <div class="mini-voice-row">
+                                    <button class="mini-play">▶ Ouvir Página</button>
+                                    <button class="mini-sec-btn">⏸ Pausar</button>
+                                    <button class="mini-sec-btn">⏹ Parar</button>
+                                </div>
+                            </div>
+                            <div class="mini-cards">
+                                <div class="mini-card"><span>📄</span><small>Materiais inacessíveis</small></div>
+                                <div class="mini-card"><span>🎨</span><small>Falta de contraste</small></div>
+                                <div class="mini-card"><span>🖱️</span><small>Sem teclado</small></div>
+                                <div class="mini-card"><span>🔇</span><small>Sem audiodescrição</small></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="laptop-base">
+                        <div class="laptop-notch"></div>
+                    </div>
+                </div>
+
+            </div>
         </section>
 
-        <!-- PARTE 3: CONCLUSÃO E SOLUÇÕES -->
-        <section id="conclusao" aria-labelledby="titulo-conclusao" tabindex="-1">
-            <h2 id="titulo-conclusao">3. Ideias para uma Maior Inclusão Escolar</h2>
-            <p>
-                Para alcançar uma verdadeira inclusão educacional, instituições públicas e privadas devem adotar medidas práticas e continuadas:
-            </p>
-            <ul>
-                <li><strong>Padrões de Acessibilidade Digital:</strong> Implementar a diretriz WCAG em todas as plataformas escolares digitais.</li>
-                <li><strong>Capacitação Docente:</strong> Treinar professores para produzir conteúdos acessíveis, como textos digitais estruturados e com descrições de imagens.</li>
-                <li><strong>Formatos Diversificados:</strong> Disponibilizar livros didáticos em Braille, áudio e formatos digitais acessíveis (como EPUB).</li>
-            </ul>
-
-            <h3 id="fontes">Plataformas Educacionais Acessíveis no Estado do Paraná</h3>
-            <p>Abaixo estão três portais utilizados na rede educacional do Estado do Paraná projetados com recursos de acessibilidade:</p>
-            
-            <ul class="lista-links">
-                <li>
-                    <a href="https://www.escoladigital.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela o portal Escola Digital Paraná">
-                        Escola Digital Paraná <span>(Abre em nova janela)</span>
-                    </a> - Portal de recursos educacionais digitais com suporte a leitores de tela e contraste.
-                </li>
-                <li>
-                    <a href="https://www.educacao.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela a Secretaria da Educação do Paraná">
-                        Secretaria da Educação do Paraná (SEED-PR) <span>(Abre em nova janela)</span>
-                    </a> - Portal oficial adaptado com barra de acessibilidade VLibras e opções de ajuste de texto.
-                </li>
-                <li>
-                    <a href="https://www.nre.seed.pr.gov.br/" target="_blank" rel="noopener noreferrer" title="Abre em nova janela o portal dos Núcleos Regionais de Educação">
-                        Núcleos Regionais de Educação (NRE Paraná) <span>(Abre em nova janela)</span>
-                    </a> - Plataforma de apoio com menus simplificados para navegação por teclado e leitor de tela.
-                </li>
-            </ul>
+        <!-- SEÇÃO 2: O QUE É ACESSIBILIDADE -->
+        <section id="intro" class="section-content" aria-labelledby="titulo-intro" tabindex="-1">
+            <div class="container">
+                <p class="section-tag" aria-hidden="true">01 — Introdução</p>
+                <h2 id="titulo-intro">O que é Acessibilidade na Educação?</h2>
+                <div class="content-prose">
+                    <p>
+                        Acessibilidade na educação significa que todo estudante — com ou sem deficiência — tem o direito de aprender nas mesmas condições. Isso vai muito além de rampas e corrimãos: envolve materiais didáticos que leitores de tela consigam interpretar, plataformas digitais que funcionem sem mouse e vídeos com audiodescrição do que aparece na tela.
+                    </p>
+                    <p>
+                        No Brasil, a Lei Brasileira de Inclusão (Lei nº 13.146/2015) garante esse direito. Mas entre a lei e a sala de aula, ainda existe um caminho longo — e quem paga o preço dessa distância são os próprios estudantes.
+                    </p>
+                </div>
+            </div>
         </section>
+
+        <!-- SEÇÃO 3: DIFICULDADES -->
+        <section id="dificuldades" class="section-content section-alt" aria-labelledby="titulo-dificuldades" tabindex="-1">
+            <div class="container">
+                <p class="section-tag" aria-hidden="true">02 — Obstáculos</p>
+                <h2 id="titulo-dificuldades">As Dificuldades do Dia a Dia</h2>
+                <p class="section-intro">
+                    Estudantes com deficiência visual ou baixa visão enfrentam obstáculos que a maioria das pessoas nem percebe existirem:
+                </p>
+                <div class="cards-grid">
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">📄</div>
+                        <h3>Materiais inacessíveis</h3>
+                        <p>Livros e apostilas digitalizados como imagem — sem texto real — são invisíveis para softwares leitores de tela.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">🎨</div>
+                        <h3>Falta de contraste</h3>
+                        <p>Plataformas com texto cinza sobre fundo branco tornam a leitura impossível para quem tem baixa visão.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">🖱️</div>
+                        <h3>Sem navegação por teclado</h3>
+                        <p>Sistemas que só funcionam com clique do mouse excluem completamente quem não consegue usar um.</p>
+                    </article>
+                    <article class="card">
+                        <div class="card-icon" aria-hidden="true">🔇</div>
+                        <h3>Vídeos sem audiodescrição</h3>
+                        <p>Conteúdos em vídeo sem narração do que é exibido na tela deixam estudantes cegos sem contexto algum.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 4: SOLUÇÕES -->
+        <section id="conclusao" class="section-content" aria-labelledby="titulo-conclusao" tabindex="-1">
+            <div class="container">
+                <p class="section-tag" aria-hidden="true">03 — Caminhos</p>
+                <h2 id="titulo-conclusao">O Que Pode Mudar</h2>
+                <p class="section-intro">
+                    Pequenas mudanças nas plataformas e nos processos fazem uma diferença enorme na vida de quem depende delas:
+                </p>
+                <ul class="solutions-list" aria-label="Lista de soluções propostas">
+                    <li>
+                        <strong>Padrões WCAG nas plataformas escolares</strong>
+                        As diretrizes internacionais de acessibilidade web são o ponto de partida. Seguir o WCAG 2.1 garante que qualquer pessoa consiga usar o sistema.
+                    </li>
+                    <li>
+                        <strong>Formação para professores</strong>
+                        Docentes precisam aprender a criar materiais acessíveis: PDFs com texto real, imagens com descrição e apresentações com contraste adequado.
+                    </li>
+                    <li>
+                        <strong>Materiais em múltiplos formatos</strong>
+                        Livros em Braille, áudio e EPUB acessível deveriam ser padrão — não exceção.
+                    </li>
+                    <li>
+                        <strong>Testes com usuários reais</strong>
+                        Nenhuma plataforma deveria ser lançada sem ser testada por pessoas com deficiência. Esse passo evita os erros mais básicos.
+                    </li>
+                </ul>
+
+                <!-- Plataformas do Paraná -->
+                <div class="platforms-block" id="fontes">
+                    <h3>Plataformas Educacionais do Paraná</h3>
+                    <p>
+                        Portais da rede educacional do estado com recursos de acessibilidade.
+                        <em>A qualidade de acessibilidade pode variar — se encontrar alguma barreira, use o formulário abaixo para nos contar.</em>
+                    </p>
+                    <ul class="lista-links" aria-label="Links para plataformas educacionais do Paraná">
+                        <li>
+                            <a href="https://www.escoladigital.pr.gov.br/" target="_blank" rel="noopener noreferrer" aria-label="Escola Digital Paraná — abre em nova janela">
+                                Escola Digital Paraná <span class="link-tag">(nova janela)</span>
+                            </a>
+                            — Portal de recursos educacionais digitais da rede estadual.
+                        </li>
+                        <li>
+                            <a href="https://www.educacao.pr.gov.br/" target="_blank" rel="noopener noreferrer" aria-label="Secretaria da Educação do Paraná — abre em nova janela">
+                                Secretaria da Educação do Paraná <span class="link-tag">(nova janela)</span>
+                            </a>
+                            — Portal oficial com barra de acessibilidade VLibras integrada.
+                        </li>
+                        <li>
+                            <a href="https://acessibilidade.pr.gov.br/" target="_blank" rel="noopener noreferrer" aria-label="Portal de Acessibilidade do Paraná — abre em nova janela">
+                                Portal de Acessibilidade do Paraná <span class="link-tag">(nova janela)</span>
+                            </a>
+                            — Informações, legislação e recursos de acessibilidade do governo do estado.
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SEÇÃO 5: OPINIÃO -->
+        <section id="opiniao" class="section-content section-alt" aria-labelledby="titulo-opiniao" tabindex="-1">
+            <div class="container">
+                <p class="section-tag" aria-hidden="true">04 — Sua Voz</p>
+                <h2 id="titulo-opiniao">Sua Opinião Importa</h2>
+                <p class="section-intro">
+                    Tem uma ideia para melhorar a acessibilidade nas escolas do Paraná? Encontrou uma barreira em alguma plataforma? Conta pra gente — cada mensagem importa.
+                </p>
+
+                <div class="opinion-layout">
+                    <div class="opinion-form-wrap">
+                        <form class="opinion-form" id="form-opiniao" onsubmit="enviarOpiniao(event)" novalidate aria-label="Formulário de opinião" data-netlify="true" name="feedbacks" netlify-honeypot="bot-field">
+                            <input type="hidden" name="form-name" value="feedbacks">
+                            <input type="hidden" name="bot-field" style="display:none" aria-hidden="true">
+                            <div class="form-field">
+                                <label for="nome-input">
+                                    Seu nome <span class="optional">(opcional)</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="nome-input"
+                                    name="nome"
+                                    placeholder="Como você quer ser chamado?"
+                                    autocomplete="name"
+                                    maxlength="80"
+                                >
+                            </div>
+                            <div class="form-field">
+                                <label for="opiniao-input">
+                                    Sua mensagem <span class="required" aria-label="campo obrigatório">*</span>
+                                </label>
+                                <textarea
+                                    id="opiniao-input"
+                                    name="opiniao"
+                                    rows="5"
+                                    placeholder="Escreva sua ideia, sugestão ou reclamação..."
+                                    required
+                                    aria-required="true"
+                                    maxlength="1000"
+                                ></textarea>
+                            </div>
+                            <button type="submit" class="btn-submit">Enviar mensagem</button>
+                            <div class="form-feedback" id="form-feedback" role="alert" aria-live="polite"></div>
+                        </form>
+                    </div>
+
+                    <div class="opinions-list-wrap" aria-label="Mensagens enviadas pelas pessoas">
+                        <h3 class="opinions-heading">O que as pessoas estão dizendo</h3>
+                        <div id="opinions-container" aria-live="polite">
+                            <!-- preenchido pelo JS -->
+                        </div>
+                        <p class="opinions-note">As mensagens ficam salvas localmente no seu navegador.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <footer>
-        <p>Desenvolvido com foco em acessibilidade universal (WCAG 2.1).</p>
+    <!-- Barra de navegação mobile (rodapé fixo) -->
+    <nav class="mobile-bottom-nav" aria-label="Navegação rápida por seção">
+        <a href="#boas-vindas" class="mobile-nav-btn" aria-label="Início">
+            <span aria-hidden="true">🏠</span>
+            <span>Início</span>
+        </a>
+        <a href="#intro" class="mobile-nav-btn" aria-label="Conteúdo">
+            <span aria-hidden="true">📖</span>
+            <span>Conteúdo</span>
+        </a>
+        <a href="#dificuldades" class="mobile-nav-btn" aria-label="Problemas">
+            <span aria-hidden="true">⚠️</span>
+            <span>Problemas</span>
+        </a>
+        <a href="#conclusao" class="mobile-nav-btn" aria-label="Soluções">
+            <span aria-hidden="true">💡</span>
+            <span>Soluções</span>
+        </a>
+        <a href="#opiniao" class="mobile-nav-btn" aria-label="Sua Opinião">
+            <span aria-hidden="true">💬</span>
+            <span>Opinião</span>
+        </a>
+    </nav>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p>Desenvolvido com foco em acessibilidade universal — WCAG 2.1 · IFA Paraná</p>
+            <p class="footer-sub">Use o botão <strong>Modo Acessibilidade</strong> no topo para ativar o alto contraste.</p>
+        </div>
     </footer>
 
+    <!-- Firebase SDK (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
