@@ -88,21 +88,15 @@
                 <div class="voice-panel" role="region" aria-label="Leitor de voz da página">
                     <p class="voice-label" id="voice-label-desc">Ouvir o conteúdo desta página em voz alta:</p>
                     <div class="voice-buttons" role="group" aria-labelledby="voice-label-desc">
-                        <button class="btn-voice btn-play" onclick="lerTexto()" aria-label="Iniciar leitura em voz alta — atalho: Alt+P">
-                            ▶ Ouvir Página
-                        </button>
-                        <button class="btn-voice btn-pause" onclick="pausarTexto()" aria-label="Pausar ou retomar leitura — atalho: Alt+S">
-                            ⏸ Pausar
-                        </button>
-                        <button class="btn-voice btn-stop" onclick="pararTexto()" aria-label="Parar leitura — atalho: Alt+X">
-                            ⏹ Parar
-                        </button>
+                        <button type="button" class="btn-voice btn-play" onclick="lerTexto()" aria-pressed="false" aria-label="Iniciar leitura em voz alta — atalho: Alt+P">▶ Ouvir Página</button>
+                        <button type="button" class="btn-voice btn-pause" onclick="pausarTexto()" aria-label="Pausar ou retomar leitura — atalho: Alt+S">⏸ Pausar</button>
+                        <button type="button" class="btn-voice btn-stop" onclick="pararTexto()" aria-label="Parar leitura — atalho: Alt+X">⏹ Parar</button>
                     </div>
                     <div class="speed-controls" role="group" aria-label="Controle de velocidade da leitura">
                         <span class="speed-label">Velocidade:</span>
-                        <button class="btn-speed" onclick="diminuirVelocidade()" aria-label="Diminuir velocidade — atalho: Alt+vírgula">−</button>
+                        <button type="button" class="btn-speed" onclick="diminuirVelocidade()" aria-label="Diminuir velocidade — atalho: Alt+vírgula">−</button>
                         <span class="speed-display" id="speed-display" aria-live="polite" aria-atomic="true">1.0×</span>
-                        <button class="btn-speed" onclick="aumentarVelocidade()" aria-label="Aumentar velocidade — atalho: Alt+ponto">+</button>
+                        <button type="button" class="btn-speed" onclick="aumentarVelocidade()" aria-label="Aumentar velocidade — atalho: Alt+ponto">+</button>
                     </div>
                 </div>
 

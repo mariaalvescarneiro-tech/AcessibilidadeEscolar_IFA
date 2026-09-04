@@ -1,11 +1,72 @@
 // =====================================================
-// SÍNTESE DE VOZ — com workaround do bug de pause do Chrome
+// FEEDBACK DE TOQUE (som + vibração)
+// Sem arquivo de áudio: o "toc" é gerado na hora pelo navegador
+// =====================================================
+let audioCtx = null;
+
+function initAudio() {
+    if (audioCtx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    try { audioCtx = new AC(); } catch (e) { audioCtx = null; }
+}
+
+function tocarBlip(freq) {
+    initAudio();
+    if (!audioCtx) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const agora = audioCtx.currentTime;
+    const dur   = 0.09;
+    const osc   = audioCtx.createOscillator();
+    const ganho = audioCtx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, agora);
+
+    // Envelope curto para soar como um clique, sem estalo
+    ganho.gain.setValueAtTime(0.0001, agora);
+    ganho.gain.exponentialRampToValueAtTime(0.14, agora + 0.008);
+    ganho.gain.exponentialRampToValueAtTime(0.0001, agora + dur);
+
+    osc.connect(ganho);
+    ganho.connect(audioCtx.destination);
+    osc.start(agora);
+    osc.stop(agora + dur + 0.02);
+}
+
+function vibrar(padrao) {
+    if (!navigator.vibrate) return;
+    // O navegador só permite vibrar dentro de um toque real do usuário
+    if (navigator.userActivation && !navigator.userActivation.isActive) return;
+    try { navigator.vibrate(padrao); } catch (e) {}
+}
+
+// Som + vibração para confirmar que o toque foi registrado
+function feedbackToque(tipo) {
+    const notas = { play: 880, pause: 660, stop: 440, speed: 1046 };
+    tocarBlip(notas[tipo] || 880);
+    vibrar(tipo === 'stop' ? [12, 45, 12] : 15);
+}
+
+// =====================================================
+// SÍNTESE DE VOZ
+// Celulares emudecem falas longas e travam se speak() vier
+// logo depois de cancel() — por isso o texto é lido em trechos.
 // =====================================================
 const sintese = window.speechSynthesis;
-let utterance      = null;
-let textoCompleto  = '';
-let charIndexAtual = 0;   // posição da última palavra lida
+
+// ~120 caracteres dão cerca de 10s de fala: abaixo do corte de ~15s que o
+// Chrome aplica em falas longas, e dentro do que o Android/iOS aguentam
+const MAX_TRECHO = 120;
+
+let trechos        = [];
+let trechoAtual    = 0;
+let offsetNoTrecho = 0;   // posição da última palavra lida dentro do trecho
+let lendo          = false;
 let isPaused       = false;
+let geracao        = 0;   // invalida callbacks de falas já canceladas
+let vozPtBr        = null;
 
 // Velocidades disponíveis e índice atual (padrão: 1.0×)
 const VELOCIDADES   = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
@@ -15,71 +76,257 @@ function getVelocidade() {
     return VELOCIDADES[velocidadeIndex];
 }
 
-// Inicia (ou retoma) a leitura a partir de um offset de caracteres
-function lerTexto(from) {
-    from = from || 0;
-    sintese.cancel();
+// --- Voz em português -------------------------------------------------
+function carregarVoz() {
+    if (!sintese) return;
+    const vozes = sintese.getVoices();
+    if (!vozes.length) return;
 
-    // Carrega o texto apenas na primeira chamada
-    if (from === 0 || !textoCompleto) {
-        textoCompleto  = document.getElementById('main-content').innerText;
-        charIndexAtual = 0;
+    vozPtBr = null;
+    for (let i = 0; i < vozes.length; i++) {
+        if (/pt[-_]BR/i.test(vozes[i].lang)) { vozPtBr = vozes[i]; break; }
     }
+    if (!vozPtBr) {
+        for (let i = 0; i < vozes.length; i++) {
+            if (/^pt/i.test(vozes[i].lang)) { vozPtBr = vozes[i]; break; }
+        }
+    }
+}
+if (sintese) {
+    carregarVoz();
+    sintese.addEventListener('voiceschanged', carregarVoz);
+}
 
-    const trecho = textoCompleto.slice(from);
-    utterance = new SpeechSynthesisUtterance(trecho);
-    utterance.lang = 'pt-BR';
-    utterance.rate = getVelocidade();
+// --- Desbloqueio no primeiro toque -----------------------------------
+// iOS e Android só liberam áudio e fala dentro de um gesto do usuário
+let vozDesbloqueada = false;
 
-    // Rastreia a posição palavra a palavra (workaround para o bug de pause do Chrome)
-    utterance.addEventListener('boundary', function (e) {
-        if (e.name === 'word') {
-            charIndexAtual = from + e.charIndex;
+function desbloquearVoz() {
+    if (vozDesbloqueada) return;
+    vozDesbloqueada = true;
+
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+
+    if (!sintese) return;
+    try {
+        const mudo = new SpeechSynthesisUtterance(' ');
+        mudo.volume = 0;
+        sintese.speak(mudo);
+    } catch (e) {}
+}
+
+['pointerdown', 'touchstart', 'keydown'].forEach(function (evento) {
+    document.addEventListener(evento, desbloquearVoz, { once: true, passive: true });
+});
+
+// --- Quebra do texto em trechos curtos -------------------------------
+function dividirEmTrechos(texto) {
+    const limpo  = texto.replace(/\s+/g, ' ').trim();
+    const frases = limpo.match(/[^.!?;:]+[.!?;:]*\s*/g) || [limpo];
+    const saida  = [];
+    let   buffer = '';
+
+    frases.forEach(function (fraseOriginal) {
+        let frase = fraseOriginal;
+
+        // Frase sozinha maior que o limite: corta no espaço mais próximo
+        while (frase.length > MAX_TRECHO) {
+            let corte = frase.lastIndexOf(' ', MAX_TRECHO);
+            if (corte <= 0) corte = MAX_TRECHO;
+            if (buffer.trim()) { saida.push(buffer.trim()); buffer = ''; }
+            saida.push(frase.slice(0, corte).trim());
+            frase = frase.slice(corte);
+        }
+
+        if ((buffer + frase).length > MAX_TRECHO) {
+            if (buffer.trim()) saida.push(buffer.trim());
+            buffer = frase;
+        } else {
+            buffer += frase;
         }
     });
 
-    utterance.addEventListener('end', function () {
-        charIndexAtual = 0;
-        textoCompleto  = '';
-        isPaused       = false;
+    if (buffer.trim()) saida.push(buffer.trim());
+    return saida.filter(function (t) { return t.length > 0; });
+}
+
+// --- Motor de leitura -------------------------------------------------
+function pararMotor() {
+    geracao++;
+    try { sintese.cancel(); } catch (e) {}
+}
+
+function falarTrecho(indice, offset, g) {
+    if (g !== geracao || !lendo) return;
+
+    if (indice >= trechos.length) {
+        finalizarLeitura(true);
+        return;
+    }
+
+    trechoAtual    = indice;
+    offsetNoTrecho = offset || 0;
+
+    const texto = trechos[indice].slice(offsetNoTrecho);
+    if (!texto.trim()) {
+        falarTrecho(indice + 1, 0, g);
+        return;
+    }
+
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = 'pt-BR';
+    if (vozPtBr) fala.voice = vozPtBr;
+    fala.rate = getVelocidade();
+
+    const base = offsetNoTrecho;
+    fala.addEventListener('boundary', function (e) {
+        if (e.name === 'word') offsetNoTrecho = base + e.charIndex;
     });
 
+    fala.addEventListener('end', function () {
+        if (g !== geracao || !lendo) return;
+        falarTrecho(indice + 1, 0, g);
+    });
+
+    fala.addEventListener('error', function (e) {
+        // "interrupted" e "canceled" são esperados quando pausamos ou paramos
+        if (g !== geracao || !lendo) return;
+        if (e.error === 'interrupted' || e.error === 'canceled') return;
+        finalizarLeitura(false);
+        mostrarStatus('⚠ Não foi possível ler em voz alta neste aparelho');
+    });
+
+    sintese.speak(fala);
+}
+
+// Todo speak() precisa de uma folga depois do cancel(), senão o celular
+// engasga e não fala nada
+function agendarFala(indice, offset) {
+    pararMotor();
+    const g = geracao;
+    setTimeout(function () {
+        if (g !== geracao || !lendo) return;
+        falarTrecho(indice, offset, g);
+    }, 120);
+}
+
+function finalizarLeitura(completou) {
+    lendo          = false;
+    isPaused       = false;
+    trechos        = [];
+    trechoAtual    = 0;
+    offsetNoTrecho = 0;
+    atualizarEstadoBotoes();
+    if (completou) mostrarStatus('✓ Leitura concluída');
+}
+
+function atualizarEstadoBotoes() {
+    const play  = document.querySelector('.btn-play');
+    const pause = document.querySelector('.btn-pause');
+
+    if (play) {
+        play.classList.toggle('is-speaking', lendo);
+        play.setAttribute('aria-pressed', String(lendo));
+        play.textContent = lendo ? '🔊 Lendo...' : '▶ Ouvir Página';
+    }
+    if (pause) {
+        pause.textContent = isPaused ? '▶ Retomar' : '⏸ Pausar';
+    }
+}
+
+// --- Ações dos botões -------------------------------------------------
+function lerTexto() {
+    desbloquearVoz();
+    feedbackToque('play');
+
+    if (!sintese) {
+        mostrarStatus('⚠ Este navegador não suporta leitura em voz alta');
+        return;
+    }
+
+    // Se estava pausado, retoma de onde parou em vez de recomeçar
+    if (isPaused && trechos.length) {
+        isPaused = false;
+        lendo    = true;
+        atualizarEstadoBotoes();
+        mostrarStatus('▶ Retomando leitura...');
+        agendarFala(trechoAtual, offsetNoTrecho);
+        return;
+    }
+
+    const alvo = document.getElementById('main-content') || document.body;
+    trechos        = dividirEmTrechos(alvo.innerText || '');
+    trechoAtual    = 0;
+    offsetNoTrecho = 0;
+
+    if (!trechos.length) {
+        mostrarStatus('⚠ Nada para ler nesta página');
+        return;
+    }
+
+    lendo    = true;
     isPaused = false;
-    sintese.speak(utterance);
+    atualizarEstadoBotoes();
+    mostrarStatus('▶ Lendo a página...');
+    agendarFala(0, 0);
 }
 
 function pausarTexto() {
-    if (sintese.speaking && !isPaused) {
-        // Chrome não implementa pause corretamente: cancela e salva a posição
-        sintese.cancel();
+    desbloquearVoz();
+    feedbackToque('pause');
+
+    if (lendo && !isPaused) {
+        lendo    = false;
         isPaused = true;
-        mostrarStatus('⏸ Pausado');
+        pararMotor();
+        atualizarEstadoBotoes();
+        mostrarStatus('⏸ Leitura pausada');
     } else if (isPaused) {
-        lerTexto(charIndexAtual);
-        mostrarStatus('▶ Retomando...');
+        isPaused = false;
+        lendo    = true;
+        atualizarEstadoBotoes();
+        mostrarStatus('▶ Retomando leitura...');
+        agendarFala(trechoAtual, offsetNoTrecho);
+    } else {
+        mostrarStatus('Nada sendo lido no momento');
     }
 }
 
 function pararTexto() {
-    sintese.cancel();
-    charIndexAtual = 0;
-    textoCompleto  = '';
-    isPaused       = false;
-    mostrarStatus('⏹ Parado');
+    desbloquearVoz();
+    feedbackToque('stop');
+
+    const estavaAtivo = lendo || isPaused;
+    lendo    = false;
+    isPaused = false;
+    pararMotor();
+    finalizarLeitura(false);
+    mostrarStatus(estavaAtivo ? '⏹ Leitura parada' : 'Nada sendo lido no momento');
 }
 
 // =====================================================
 // CONTROLE DE VELOCIDADE
 // =====================================================
 function aumentarVelocidade() {
-    if (velocidadeIndex >= VELOCIDADES.length - 1) return;
+    desbloquearVoz();
+    feedbackToque('speed');
+    if (velocidadeIndex >= VELOCIDADES.length - 1) {
+        mostrarStatus('⚡ Velocidade máxima');
+        return;
+    }
     velocidadeIndex++;
     mostrarVelocidade();
     reiniciarComNovaVelocidade();
 }
 
 function diminuirVelocidade() {
-    if (velocidadeIndex <= 0) return;
+    desbloquearVoz();
+    feedbackToque('speed');
+    if (velocidadeIndex <= 0) {
+        mostrarStatus('⚡ Velocidade mínima');
+        return;
+    }
     velocidadeIndex--;
     mostrarVelocidade();
     reiniciarComNovaVelocidade();
@@ -87,11 +334,18 @@ function diminuirVelocidade() {
 
 function reiniciarComNovaVelocidade() {
     // Se estiver lendo ou pausado, retoma do ponto atual com a nova velocidade
-    if (sintese.speaking || isPaused) {
-        const from = charIndexAtual;
-        isPaused   = false;
-        lerTexto(from);
-    }
+    if (!lendo && !isPaused) return;
+    const indice = trechoAtual;
+    const offset = offsetNoTrecho;
+    isPaused = false;
+    lendo    = true;
+    atualizarEstadoBotoes();
+    agendarFala(indice, offset);
+}
+
+// 1 vira "1.0×" em vez de "1×"
+function rotuloVelocidade(v) {
+    return (Number.isInteger(v) ? v.toFixed(1) : String(v)) + '×';
 }
 
 function mostrarVelocidade() {
@@ -99,17 +353,21 @@ function mostrarVelocidade() {
 
     // Atualiza o display inline no painel de voz
     const display = document.getElementById('speed-display');
-    if (display) display.textContent = velocidade + '×';
+    if (display) display.textContent = rotuloVelocidade(velocidade);
 
-    const label = velocidade === 1.0 ? '1.0× (normal)' : velocidade + '×';
+    const label = velocidade === 1.0 ? '1.0× (normal)' : rotuloVelocidade(velocidade);
     mostrarStatus('⚡ Velocidade: ' + label);
 }
 
 // Inicializa o display ao carregar
 document.addEventListener('DOMContentLoaded', function () {
     const display = document.getElementById('speed-display');
-    if (display) display.textContent = getVelocidade() + '×';
+    if (display) display.textContent = rotuloVelocidade(getVelocidade());
+    atualizarEstadoBotoes();
 });
+
+// Se a pessoa sair da aba ou fechar, interrompe a fala
+window.addEventListener('pagehide', function () { pararMotor(); });
 
 // =====================================================
 // TOAST DE STATUS (feedback visual e de leitor de tela)
@@ -139,6 +397,8 @@ function toggleModoAcessibilidade() {
     const btn   = document.getElementById('btn-mode-toggle');
     const label = btn && btn.querySelector('.mode-label');
     const isAtivo = html.dataset.mode === 'acessibilidade';
+
+    feedbackToque('speed');
 
     if (isAtivo) {
         delete html.dataset.mode;
@@ -204,7 +464,7 @@ document.addEventListener('keydown', function (event) {
         // --- Leitura de voz ---
         case 'p': case 'P':
             event.preventDefault();
-            lerTexto(0);
+            lerTexto();
             break;
         case 's': case 'S':
             event.preventDefault();
