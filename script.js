@@ -603,17 +603,6 @@ function enviarOpiniao(event) {
 
     db.collection('feedbacks').add(opiniao)
         .then(function () {
-            // Também envia para Netlify Forms para notificação por email
-            fetch('/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: new URLSearchParams({
-                    'form-name': 'feedbacks',
-                    'nome':      opiniao.nome,
-                    'mensagem':  opiniao.texto
-                }).toString()
-            }).catch(function () {});
-
             document.getElementById('form-opiniao').reset();
             feedback.textContent = '✓ Mensagem enviada! Obrigado pela sua contribuição.';
             feedback.className   = 'form-feedback success';
